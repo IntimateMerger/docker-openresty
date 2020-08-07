@@ -1,12 +1,13 @@
-ARG RESTY_IMAGE_TAG="3.10"
+ARG RESTY_IMAGE_TAG="3.11"
 FROM alpine:${RESTY_IMAGE_TAG}
 
 # Docker Build Arguments
 ARG RESTY_IMAGE_TAG
-ARG RESTY_VERSION="1.15.8.2"
-ARG RESTY_OPENSSL_VERSION="1.1.1c"
-ARG RESTY_PCRE_VERSION="8.43"
-ARG RESTY_GEOIP2_VERSION="3.2"
+ARG RESTY_VERSION="1.17.8.2"
+ARG RESTY_OPENSSL_VERSION="1.1.1g"
+ARG RESTY_OPENSSL_PATCH_VERSION="1.1.1f"
+ARG RESTY_PCRE_VERSION="8.44"
+ARG RESTY_GEOIP2_VERSION="3.3"
 ARG RESTY_J="1"
 
 # These are not intended to be user-specified
@@ -56,6 +57,7 @@ LABEL resty.image="alpine:${RESTY_IMAGE_TAG}" \
       resty.version="${RESTY_VERSION}" \
       resty.openssl_version="${RESTY_OPENSSL_VERSION}" \
       resty.pcre_version="${RESTY_PCRE_VERSION}" \
+      resty.geoip2_version="${RESTY_GEOIP2_VERSION}" \
       resty.config_options="${_RESTY_CONFIG_OPTIONS} ${RESTY_CONFIG_OPTIONS}" \
       resty.add_package_builddeps="${RESTY_ADD_PACKAGE_BUILDDEPS}" \
       resty.add_package_rundeps="${RESTY_ADD_PACKAGE_RUNDEPS}" \
@@ -93,12 +95,12 @@ RUN set -x && apk update && apk add --no-cache --virtual .build-deps \
     && cd openssl-${RESTY_OPENSSL_VERSION} \
     && if [ $(echo ${RESTY_OPENSSL_VERSION} | cut -c 1-5) = "1.1.1" ] ; then \
         echo 'patching OpenSSL 1.1.1 for OpenResty' \
-        && curl -s https://raw.githubusercontent.com/openresty/openresty/master/patches/openssl-1.1.1c-sess_set_get_cb_yield.patch | patch -p1 ; \
+        && curl -s https://raw.githubusercontent.com/openresty/openresty/master/patches/openssl-${RESTY_OPENSSL_PATCH_VERSION}-sess_set_get_cb_yield.patch | patch -p1 ; \
     fi \
     && if [ $(echo ${RESTY_OPENSSL_VERSION} | cut -c 1-5) = "1.1.0" ] ; then \
         echo 'patching OpenSSL 1.1.0 for OpenResty' \
         && curl -s https://raw.githubusercontent.com/openresty/openresty/ed328977028c3ec3033bc25873ee360056e247cd/patches/openssl-1.1.0j-parallel_build_fix.patch | patch -p1 \
-        && curl -s https://raw.githubusercontent.com/openresty/openresty/master/patches/openssl-1.1.0d-sess_set_get_cb_yield.patch | patch -p1 ; \
+        && curl -s https://raw.githubusercontent.com/openresty/openresty/master/patches/openssl-${RESTY_OPENSSL_PATCH_VERSION}-sess_set_get_cb_yield.patch | patch -p1 ; \
     fi \
     && ./config \
       no-threads shared zlib -g \
@@ -124,7 +126,7 @@ RUN set -x && apk update && apk add --no-cache --virtual .build-deps \
     && curl -sfSL https://github.com/leev/ngx_http_geoip2_module/archive/${RESTY_GEOIP2_VERSION}.tar.gz -o ngx_http_geoip2_module-${RESTY_GEOIP2_VERSION}.tar.gz \
     && tar xzf ngx_http_geoip2_module-${RESTY_GEOIP2_VERSION}.tar.gz \
     && cd /tmp \
-    && curl -sfSL https://github.com/openresty/openresty/releases/download/v${RESTY_VERSION}/openresty-${RESTY_VERSION}.tar.gz -o openresty-${RESTY_VERSION}.tar.gz \
+    && curl -sfSL https://openresty.org/download/openresty-${RESTY_VERSION}.tar.gz -o openresty-${RESTY_VERSION}.tar.gz \
     && tar xzf openresty-${RESTY_VERSION}.tar.gz \
     && cd /tmp/openresty-${RESTY_VERSION} \
     && eval ./configure -j${RESTY_J} ${_RESTY_CONFIG_DEPS} ${_RESTY_CONFIG_OPTIONS} ${RESTY_CONFIG_OPTIONS} ${RESTY_LUAJIT_OPTIONS} \
