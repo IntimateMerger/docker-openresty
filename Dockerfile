@@ -1,13 +1,14 @@
-ARG RESTY_IMAGE_TAG="3.13"
+ARG RESTY_IMAGE_TAG="3.16"
 FROM alpine:${RESTY_IMAGE_TAG}
 
 # Docker Build Arguments
 ARG RESTY_IMAGE_TAG
-ARG RESTY_VERSION="1.19.3.2"
-ARG RESTY_OPENSSL_VERSION="1.1.1k"
+ARG RESTY_VERSION="1.21.4.1"
+ARG RESTY_OPENSSL_VERSION="1.1.1q"
 ARG RESTY_OPENSSL_PATCH_VERSION="1.1.1f"
-ARG RESTY_PCRE_VERSION="8.44"
-ARG RESTY_GEOIP2_VERSION="3.3"
+ARG RESTY_PCRE_VERSION="8.45"
+ARG RESTY_PCRE_SHA1="a19402ce56d770da1557cf331b109d33adb74062"
+ARG RESTY_GEOIP2_VERSION="3.4"
 ARG RESTY_J="1"
 
 # These are not intended to be user-specified
@@ -22,6 +23,7 @@ ARG _RESTY_CONFIG_OPTIONS="\
     --with-http_realip_module \
     --with-http_ssl_module \
     --with-http_stub_status_module \
+    --with-http_sub_module \
     --with-http_v2_module \
     --with-ipv6 \
     --with-md5-asm \
@@ -111,7 +113,8 @@ RUN set -x && apk update && apk add --no-cache --virtual .build-deps \
     && make -j${RESTY_J} \
     && make -j${RESTY_J} install_sw \
     && cd /tmp \
-    && curl -sfSL https://ftp.pcre.org/pub/pcre/pcre-${RESTY_PCRE_VERSION}.tar.gz -o pcre-${RESTY_PCRE_VERSION}.tar.gz \
+    && curl -sfSL https://downloads.sourceforge.net/project/pcre/pcre/${RESTY_PCRE_VERSION}/pcre-${RESTY_PCRE_VERSION}.tar.gz -o pcre-${RESTY_PCRE_VERSION}.tar.gz \
+    && echo "${RESTY_PCRE_SHA1} pcre-${RESTY_PCRE_VERSION}.tar.gz" | sha1sum -c - \
     && tar xzf pcre-${RESTY_PCRE_VERSION}.tar.gz \
     && cd /tmp/pcre-${RESTY_PCRE_VERSION} \
     && ./configure \
