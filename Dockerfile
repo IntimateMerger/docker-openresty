@@ -1,10 +1,10 @@
-ARG RESTY_IMAGE_TAG="3.16"
+ARG RESTY_IMAGE_TAG="3.20"
 FROM alpine:${RESTY_IMAGE_TAG}
 
 # Docker Build Arguments
 ARG RESTY_IMAGE_TAG
-ARG RESTY_VERSION="1.21.4.1"
-ARG RESTY_OPENSSL_VERSION="1.1.1q"
+ARG RESTY_VERSION="1.21.4.4"
+ARG RESTY_OPENSSL_VERSION="1.1.1w"
 ARG RESTY_OPENSSL_PATCH_VERSION="1.1.1f"
 ARG RESTY_PCRE_VERSION="8.45"
 ARG RESTY_PCRE_SHA1="a19402ce56d770da1557cf331b109d33adb74062"
@@ -87,6 +87,7 @@ RUN set -x && apk update && apk add --no-cache --virtual .build-deps \
         gd \
         libgcc \
         libmaxminddb \
+        tzdata \
         zlib \
         ${RESTY_ADD_PACKAGE_RUNDEPS} \
     && cd /tmp \
@@ -146,7 +147,6 @@ RUN set -x && apk update && apk add --no-cache --virtual .build-deps \
     && strip /usr/local/openresty/nginx/sbin/nginx \
     && strip /usr/local/openresty/nginx/modules/*.so \
     && apk del .build-deps \
-    && apk add --no-cache tzdata \
     && mkdir -p /var/log/openresty \
     && ln -sf /dev/stdout /var/log/openresty/access.log \
     && ln -sf /dev/stderr /var/log/openresty/error.log
