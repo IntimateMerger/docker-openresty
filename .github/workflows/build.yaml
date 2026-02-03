@@ -46,7 +46,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN_READ_WRITE }}
+          password: ${{ secrets.DOCKERHUB_PUSH_TOKEN }}
 
       - name: Build and push by digest
         id: build
@@ -96,7 +96,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN_READ_WRITE }}
+          password: ${{ secrets.DOCKERHUB_PUSH_TOKEN }}
 
       - name: Extract version from tag
         id: version
