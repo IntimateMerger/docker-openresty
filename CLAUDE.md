@@ -75,14 +75,15 @@ LuaJIT is configured with `LUAJIT_NUMMODE=2` (number mode) and Lua 5.2 compatibi
 
 ## CI/CD Pipeline
 
-### GitHub Actions Workflow
+### GitHub Actions Workflows
 
-The repository uses `.github/workflows/docker-build.yml` for automated builds with a multi-stage digest-based approach:
+The repository uses two separate workflows for improved security and clarity:
+
+#### 1. Build and Push (`.github/workflows/build-and-push.yaml`)
 
 **Triggers**:
 - Push to `master`/`main` branch → Build & push to Docker Hub
 - Tags matching `*.*.*.*-*` (e.g., `1.27.1.2-0`) → Build & push with version tags
-- Pull requests → Security scan only (no build)
 - Manual dispatch → Build & push
 
 **Generated Docker Tags**:
@@ -91,19 +92,28 @@ The repository uses `.github/workflows/docker-build.yml` for automated builds wi
 - `1.27` - Two-part version
 
 **Required Secrets**:
-- `DOCKER_HUB_USERNAME` - Docker Hub username
-- `DOCKER_HUB_TOKEN` - Docker Hub access token with Read & Write permissions
+- `DOCKERHUB_USERNAME` (variable) - Docker Hub username
+- `DOCKERHUB_PUSH_TOKEN` (secret) - Docker Hub access token with Read & Write permissions
+
+#### 2. Security Scan (`.github/workflows/security-scan.yaml`)
+
+**Triggers**:
+- Pull requests to `master`/`main` branch
+
+**Purpose**:
+- Runs Trivy configuration scanner on Dockerfile and workflow files
+- Uploads results to GitHub Security tab
+- **No Docker Hub access or secrets required** - provides fast security feedback in isolation
 
 ### Build Architecture
 
-The workflow uses a three-stage process for efficient multi-platform builds:
+The build-and-push workflow uses a three-stage process for efficient multi-platform builds:
 
 1. **build** (matrix job):
    - Runs on native runners: `ubuntu-latest` (amd64), `ubuntu-latest-arm` (arm64)
    - Each platform builds independently in parallel
    - Uses digest-based push (`push-by-digest=true`) for reliable multi-arch images
    - Platform-specific cache scopes for optimal cache utilization
-   - Skipped for pull requests
 
 2. **merge**:
    - Downloads all platform digests
@@ -111,19 +121,16 @@ The workflow uses a three-stage process for efficient multi-platform builds:
    - Pushes unified multi-platform image with appropriate tags
    - Runs Docker Scout CVE scan on final image
 
-3. **security-scan** (PR only):
-   - Runs Trivy configuration scanner
-   - Uploads results to GitHub Security tab
-   - Provides fast feedback without building images
-
 ### Security Features
 
+- **Workflow Separation**: Build and security-scan workflows are completely isolated
+  - PRs never trigger workflows that access Docker Hub secrets
+  - Reduces attack surface for public repository
 - **SBOM Generation**: Enabled (`sbom: true`) for all builds to track dependencies
 - **Provenance**: Disabled (`provenance: false`) for maximum compatibility with cloud services (ECR, ACR, GCR)
 - **Vulnerability Scanning**:
   - Docker Scout (post-merge): Scans final multi-platform image for critical/high CVEs
   - Trivy (PRs only): Scans Dockerfile and configuration, uploads to GitHub Security
-- **Pull Request Isolation**: PRs run security scans only, no Docker builds or Docker Hub access
 
 ### Build Optimization
 
