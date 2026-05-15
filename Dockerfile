@@ -3,7 +3,7 @@ FROM alpine:${RESTY_BASE_IMAGE_TAG}
 ARG RESTY_BASE_IMAGE_TAG
 
 # Docker Build Arguments
-ARG RESTY_VERSION="1.27.1.2"
+ARG RESTY_VERSION="1.29.2.4"
 
 # https://github.com/openresty/openresty-packaging/blob/master/alpine/openresty-openssl3/APKBUILD
 ARG RESTY_OPENSSL_VERSION="3.4.3"
@@ -138,7 +138,7 @@ RUN set -x && apk update && apk add --no-cache --virtual .build-deps \
     && curl -sfSL https://github.com/leev/ngx_http_geoip2_module/archive/${RESTY_GEOIP2_VERSION}.tar.gz -o ngx_http_geoip2_module-${RESTY_GEOIP2_VERSION}.tar.gz \
     && tar xzf ngx_http_geoip2_module-${RESTY_GEOIP2_VERSION}.tar.gz \
     && cd /tmp \
-    && curl -fSL https://openresty.org/download/openresty-${RESTY_VERSION}.tar.gz -o openresty-${RESTY_VERSION}.tar.gz \
+    && curl -fSL https://github.com/openresty/openresty/archive/refs/tags/v${RESTY_VERSION}.tar.gz -o openresty-${RESTY_VERSION}.tar.gz \
     && tar xzf openresty-${RESTY_VERSION}.tar.gz \
     && cd /tmp/openresty-${RESTY_VERSION} \
     && eval ./configure -j${RESTY_J} ${_RESTY_CONFIG_DEPS} ${RESTY_CONFIG_OPTIONS} ${RESTY_CONFIG_OPTIONS_MORE} ${RESTY_LUAJIT_OPTIONS} ${RESTY_PCRE_OPTIONS} \
