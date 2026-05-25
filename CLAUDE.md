@@ -177,16 +177,16 @@ When updating OpenResty or dependencies:
 - Maintains complete build history
 
 **Docker Tags** (generated automatically):
+- `1.27.1.2` - Four-part version (exact build)
 - `1.27.1` - Three-part version (tracks latest patch within 1.27.1.x)
 - `1.27` - Two-part version (tracks latest minor)
 - `latest` - Latest build from master branch
 
 **Example**: Pushing git tag `1.27.1.2-0` generates Docker tags:
+- `intimatemerger/openresty:1.27.1.2`
 - `intimatemerger/openresty:1.27.1`
 - `intimatemerger/openresty:1.27`
 - `intimatemerger/openresty:latest`
-
-**Note**: Four-part version tags (e.g., `1.27.1.2`) are not published to Docker Hub. Users should use `1.27.1` to get the latest patch version within the 1.27.1.x series.
 
 ## Testing
 

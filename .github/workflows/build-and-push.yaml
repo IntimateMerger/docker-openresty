@@ -109,15 +109,18 @@ jobs:
             MAJOR=${BASH_REMATCH[1]}
             MINOR=${BASH_REMATCH[2]}
             PATCH=${BASH_REMATCH[3]}
+            BUILD=${BASH_REMATCH[4]}
 
-            # Docker tags: MAJOR.MINOR.PATCH and MAJOR.MINOR
-            PATCH_VERSION="${MAJOR}.${MINOR}.${PATCH}"  # e.g., 1.27.1
-            MINOR_VERSION="${MAJOR}.${MINOR}"           # e.g., 1.27
+            # Docker tags: MAJOR.MINOR.PATCH.BUILD, MAJOR.MINOR.PATCH, and MAJOR.MINOR
+            FULL_VERSION="${MAJOR}.${MINOR}.${PATCH}.${BUILD}"  # e.g., 1.27.1.2
+            PATCH_VERSION="${MAJOR}.${MINOR}.${PATCH}"          # e.g., 1.27.1
+            MINOR_VERSION="${MAJOR}.${MINOR}"                   # e.g., 1.27
 
+            echo "full_version=$FULL_VERSION" >> $GITHUB_OUTPUT
             echo "patch_version=$PATCH_VERSION" >> $GITHUB_OUTPUT
             echo "minor_version=$MINOR_VERSION" >> $GITHUB_OUTPUT
 
-            echo "Generated Docker tags: $PATCH_VERSION, $MINOR_VERSION"
+            echo "Generated Docker tags: $FULL_VERSION, $PATCH_VERSION, $MINOR_VERSION"
           else
             echo "Tag format does not match expected pattern (X.X.X.X-X)"
           fi
@@ -129,6 +132,7 @@ jobs:
           images: ${{ env.DOCKER_IMAGE }}
           tags: |
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'master') || github.ref == format('refs/heads/{0}', 'main') }}
+            type=raw,value=${{ steps.version.outputs.full_version }},enable=${{ startsWith(github.ref, 'refs/tags/') && steps.version.outputs.full_version != '' }}
             type=raw,value=${{ steps.version.outputs.patch_version }},enable=${{ startsWith(github.ref, 'refs/tags/') && steps.version.outputs.patch_version != '' }}
             type=raw,value=${{ steps.version.outputs.minor_version }},enable=${{ startsWith(github.ref, 'refs/tags/') && steps.version.outputs.minor_version != '' }}
 
