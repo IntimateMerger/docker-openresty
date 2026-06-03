@@ -3,7 +3,7 @@ FROM alpine:${RESTY_BASE_IMAGE_TAG}
 ARG RESTY_BASE_IMAGE_TAG
 
 # Docker Build Arguments
-ARG RESTY_VERSION="1.29.2.4"
+ARG RESTY_VERSION="1.29.2.5"
 
 # https://github.com/openresty/openresty-packaging/blob/master/alpine/openresty-openssl3/APKBUILD
 ARG RESTY_OPENSSL_VERSION="3.5.6"
